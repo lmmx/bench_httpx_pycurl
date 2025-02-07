@@ -17,6 +17,3 @@ dependencies = [
     "statsmodels>=0.14.4",
     "tqdm>=4.67.1",
 ]
-
-[tool.uv.sources]
-fastr = { path = "faster-rust-demo" }

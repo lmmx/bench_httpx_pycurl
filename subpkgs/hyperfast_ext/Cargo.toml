@@ -1,10 +1,10 @@
 [package]
-name = "hyperfast"
+name = "hyperfast2"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-name = "hyperfast"
+name = "hyperfast2"
 crate-type = ["cdylib"]
 
 [dependencies]

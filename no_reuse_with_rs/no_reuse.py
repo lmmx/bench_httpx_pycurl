@@ -28,6 +28,7 @@ URL = "https://docs.pola.rs/py-polars/html/objects.inv"
 # Benchmarking logic
 # =============================================================================
 
+
 def run_benchmark(library, code):
     """
     Write the provided code to a temporary file, run it via subprocess,
@@ -53,6 +54,7 @@ def run_benchmark(library, code):
                 duration = float("inf")
             break
     return duration
+
 
 def adaptive_benchmark(library, code, tolerance, confidence, min_repeats, max_repeats):
     """
@@ -86,6 +88,7 @@ def adaptive_benchmark(library, code, tolerance, confidence, min_repeats, max_re
             half_width = (ci_upp - ci_low) / 2.0
 
     return measurements, ds.mean, half_width
+
 
 def build_library_code(num_runs):
     """
@@ -230,25 +233,26 @@ if __name__ == "__main__":
     avg_duration = sum(durations) / len(durations)
     print(f"fastr average download time: {{avg_duration:.4f}} seconds")
 """,
-        # New Rust-based extension called "hyperfast":
-        "hyperfast": f"""
+        # New Rust-based extension called "hyperfast2":
+        "hyperfast2": f"""
 import time
-import hyperfast
+import hyperfast2
 
 url = "{URL}"
 
 def download():
     start_time = time.time()
     # Single GET using the Rust extension, no client reuse.
-    hyperfast.get(url)
+    hyperfast2.get(url)
     return time.time() - start_time
 
 if __name__ == "__main__":
     durations = [download() for _ in range({num_runs})]
     avg_duration = sum(durations) / len(durations)
-    print(f"hyperfast average download time: {{avg_duration:.4f}} seconds")
-"""
+    print(f"hyperfast2 average download time: {{avg_duration:.4f}} seconds")
+""",
     }
+
 
 # =============================================================================
 # Main script
@@ -373,7 +377,9 @@ if __name__ == "__main__":
 
     ax.set_xlabel("Library")
     ax.set_ylabel("Average Download Time (seconds)")
-    ax.set_title("Adaptive Benchmark Leaderboards (Fastest on the Left)\nIncluding Rust cdylib extensions")
+    ax.set_title(
+        "Adaptive Benchmark Leaderboards (Fastest on the Left)\nIncluding Rust cdylib extensions"
+    )
     ax.set_xticks(x + bar_width * (num_conds - 1) / 2)
     ax.set_xticklabels(sorted_libraries)
     ax.legend()

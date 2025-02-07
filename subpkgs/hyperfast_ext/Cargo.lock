@@ -278,7 +278,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "hyperfast"
+name = "hyperfast2"
 version = "0.1.0"
 dependencies = [
  "hyper",
