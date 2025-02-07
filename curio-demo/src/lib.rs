@@ -2,7 +2,6 @@ use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 use hyper::Client;
 use hyper::client::HttpConnector;
-use hyper::body::HttpBody as _;
 use hyper_tls::HttpsConnector;
 use hyper::http::uri::InvalidUri;
 
