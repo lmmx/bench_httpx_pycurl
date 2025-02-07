@@ -6,4 +6,6 @@ build-backend = "maturin"
 name = "fastr"
 version = "0.1.0"
 description = "Minimal Rust-based HTTP GET for Python"
-authors = ["Your Name"]
+authors = [
+    {name = "Louis Maddox"},
+]

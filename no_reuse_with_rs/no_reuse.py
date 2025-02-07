@@ -145,7 +145,6 @@ url = "{URL}"
 
 async def download():
     start_time = time.time()
-    # Create a new session on each request
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             await response.read()
@@ -216,24 +215,23 @@ if __name__ == "__main__":
     avg_duration = sum(durations) / len(durations)
     print(f"httpcore average download time: {{avg_duration:.4f}} seconds")
 """,
-        "faster-than-requests": f"""
+        # New Rust-based extension called "fastr":
+        "fastr": f"""
 import time
-import faster_than_requests as ftr
+import fastr
 
 url = "{URL}"
 
 def download():
     start_time = time.time()
-    # Ensure no reuse: open/close the internal client each time
-    ftr.init_client()
-    body = ftr.get2str(url)
-    ftr.close_client()
+    # Single GET using the Rust extension, no client reuse.
+    fastr.get(url)
     return time.time() - start_time
 
 if __name__ == "__main__":
     durations = [download() for _ in range({num_runs})]
     avg_duration = sum(durations) / len(durations)
-    print(f"faster-than-requests average download time: {{avg_duration:.4f}} seconds")
+    print(f"fastr average download time: {{avg_duration:.4f}} seconds")
 """,
     }
 
@@ -293,6 +291,7 @@ if __name__ == "__main__":
         errs = [cond_stats[cond][lib][1] for lib in sorted_libraries]
         means_arr.append(means)
         errs_arr.append(errs)
+    # Convert so that rows = libraries, columns = conditions.
     means_arr = np.array(means_arr).T  # shape: (num_libraries, num_conditions)
     errs_arr = np.array(errs_arr).T
 

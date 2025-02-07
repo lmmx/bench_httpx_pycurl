@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "aiohttp>=3.11.12",
+    "fastr",
     "httpcore>=1.0.7",
     "httpx>=0.28.1",
     "matplotlib>=3.10.0",
@@ -16,3 +17,6 @@ dependencies = [
     "statsmodels>=0.14.4",
     "tqdm>=4.67.1",
 ]
+
+[tool.uv.sources]
+fastr = { path = "faster-rust-demo" }
