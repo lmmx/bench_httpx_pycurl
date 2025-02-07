@@ -2,6 +2,7 @@ use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 use hyper::Client;
 use hyper_tls::HttpsConnector;
+use hyper::http::uri::InvalidUri;
 
 /// A simple blocking GET written in Rust via hyper.
 /// It returns the response body as a Python string.
@@ -12,7 +13,7 @@ fn get(url: &str) -> PyResult<String> {
     let body = rt.block_on(async {
         let https = HttpsConnector::new();
         let client = Client::builder().build(https);
-        let uri = url.parse().map_err(|e| pyo3::exceptions::PyOSError::new_err(e.to_string()))?;
+        let uri = url.parse::<hyper::Uri>().map_err(|e: InvalidUri| pyo3::exceptions::PyOSError::new_err(e.to_string()))?;
         let resp = client.get(uri).await.map_err(|e| pyo3::exceptions::PyOSError::new_err(e.to_string()))?;
         let body_bytes = hyper::body::to_bytes(resp.into_body()).await.map_err(|e| pyo3::exceptions::PyOSError::new_err(e.to_string()))?;
         let body = String::from_utf8(body_bytes.to_vec()).map_err(|e| pyo3::exceptions::PyOSError::new_err(e.to_string()))?;
