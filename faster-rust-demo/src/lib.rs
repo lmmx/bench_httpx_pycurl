@@ -10,7 +10,7 @@ fn get(url: &str) -> PyResult<String> {
     let body = rt.block_on(async {
         let resp = reqwest::get(url).await.map_err(|e| pyo3::exceptions::PyOSError::new_err(e.to_string()))?;
         let text = resp.text().await.map_err(|e| pyo3::exceptions::PyOSError::new_err(e.to_string()))?;
-        Ok(text)
+        Ok::<String, pyo3::PyErr>(text)
     })?;
     Ok(body)
 }
