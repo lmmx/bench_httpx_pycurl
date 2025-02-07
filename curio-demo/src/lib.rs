@@ -1,6 +1,8 @@
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 use hyper::Client;
+use hyper::client::HttpConnector;
+use hyper::body::HttpBody as _;
 use hyper_tls::HttpsConnector;
 use hyper::http::uri::InvalidUri;
 
@@ -12,7 +14,7 @@ fn get(url: &str) -> PyResult<String> {
     let rt = tokio::runtime::Runtime::new().unwrap();
     let body = rt.block_on(async {
         let https = HttpsConnector::new();
-        let client = Client::builder().build(https);
+        let client: Client<HttpsConnector<HttpConnector>, hyper::Body> = Client::builder().build(https);
         let uri = url.parse::<hyper::Uri>().map_err(|e: InvalidUri| pyo3::exceptions::PyOSError::new_err(e.to_string()))?;
         let resp = client.get(uri).await.map_err(|e| pyo3::exceptions::PyOSError::new_err(e.to_string()))?;
         let body_bytes = hyper::body::to_bytes(resp.into_body()).await.map_err(|e| pyo3::exceptions::PyOSError::new_err(e.to_string()))?;
