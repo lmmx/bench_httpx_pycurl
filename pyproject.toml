@@ -9,7 +9,10 @@ dependencies = [
     "httpcore>=1.0.7",
     "httpx>=0.28.1",
     "matplotlib>=3.10.0",
+    "polars>=1.21.0",
     "pycurl>=7.45.4",
     "pytest>=8.3.4",
     "requests>=2.32.3",
+    "statsmodels>=0.14.4",
+    "tqdm>=4.67.1",
 ]

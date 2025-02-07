@@ -5,10 +5,11 @@ import subprocess
 # URL to download
 url = "https://docs.pola.rs/py-polars/html/objects.inv"
 
+# --- Benchmark functions ---
 def run_benchmark(library, code):
     """
     Write the provided code to a temporary file, run it via subprocess,
-    print the output, remove the file, and parse the average download time.
+    print the output, remove the file, and return the measured average time.
     """
     script_filename = f"benchmark_{library}.py"
     with open(script_filename, "w") as script_file:
@@ -31,11 +32,12 @@ def run_benchmark(library, code):
             break
     return duration
 
-def benchmark_for_condition(num_runs):
+def benchmark_repeats(num_runs, repeats):
     """
-    For the given number of runs, build the benchmark code for each library,
-    run the benchmarks, and return a dict mapping library names to the average time.
+    For a given condition (num_runs requests), repeat the test 'repeats' times.
+    Returns a dict mapping each library to a list of measured average times.
     """
+    # Code for each library benchmark (using the same code as before)
     libraries_code = {
         "httpx": f'''
 import time
@@ -149,47 +151,66 @@ if __name__ == "__main__":
     
     results = {}
     for lib, code in libraries_code.items():
-        results[lib] = run_benchmark(lib, code)
+        results[lib] = []
+        for i in range(repeats):
+            res = run_benchmark(lib, code)
+            results[lib].append(res)
     return results
 
+# --- Main benchmarking and plotting section ---
 if __name__ == "__main__":
-    # Benchmark conditions: 1, 10, and 100 requests.
+    # Define the conditions (number of requests) and number of repeats for each condition.
     conditions = [1, 10, 100]
-    all_results = {}  # Map num_runs -> {library: avg_duration}
-    for n in conditions:
-        print(f"\nRunning benchmarks for {n} request(s)...")
-        results = benchmark_for_condition(n)
-        all_results[n] = results
-
-    # Prepare data for plotting.
-    # Use the results from the 1-request condition for reordering.
-    libraries = list(all_results[1].keys())
-    # Create a list of dictionaries for each library with its average times.
-    data_list = []
-    for lib in libraries:
-        row = {"library": lib}
-        for cond in conditions:
-            row[str(cond)] = all_results[cond][lib]
-        data_list.append(row)
+    repeats = 30  # number of repeated measurements per condition
+    all_results = {}  # mapping: condition -> {library: list of measurements}
+    for cond in conditions:
+        print(f"\nRunning benchmarks for {cond} request(s), {repeats} repeats...")
+        all_results[cond] = benchmark_repeats(cond, repeats)
     
-    # --- Import graphing libraries (and polars) only after benchmarks are complete ---
-    import polars as pl
+    # Now compute statistics (mean and 95% confidence interval error) for each library under each condition.
+    from statsmodels.stats.weightstats import DescrStatsW
+    cond_stats = {}  # mapping: condition -> {library: (mean, error)}
+    for cond in conditions:
+        cond_stats[cond] = {}
+        for lib, measurements in all_results[cond].items():
+            ds = DescrStatsW(measurements)
+            mean = ds.mean
+            ci_low, ci_upp = ds.tconfint_mean()  # 95% CI by default
+            error = (ci_upp - ci_low) / 2.0  # half-width of CI
+            cond_stats[cond][lib] = (mean, error)
+    
+    # Use the 1-request condition to sort libraries (fastest first)
+    sorted_libraries = sorted(cond_stats[1].keys(), key=lambda lib: cond_stats[1][lib][0])
+    
+    # Build arrays for means and errors for each condition in sorted order.
     import numpy as np
+    means_arr = []
+    errs_arr = []
+    for cond in conditions:
+        means = [cond_stats[cond][lib][0] for lib in sorted_libraries]
+        errs = [cond_stats[cond][lib][1] for lib in sorted_libraries]
+        means_arr.append(means)
+        errs_arr.append(errs)
+    # Convert arrays so that rows = libraries, columns = conditions.
+    means_arr = np.array(means_arr).T  # shape: (num_libraries, num_conditions)
+    errs_arr = np.array(errs_arr).T      # same shape
+
+    # --- Import graphing libraries only after benchmarks are complete ---
+    import polars as pl
     import matplotlib.pyplot as plt
 
-    # Build a Polars DataFrame.
+    # For record, build a Polars DataFrame of the means.
+    data_list = []
+    for i, lib in enumerate(sorted_libraries):
+        row = {"library": lib}
+        for j, cond in enumerate(conditions):
+            row[str(cond)] = means_arr[i, j]
+        data_list.append(row)
     df = pl.DataFrame(data_list)
-    # Sort the dataframe by the "1" request column (fastest first).
-    df_sorted = df.sort("1")
-    # Reorder libraries and the corresponding data using the sorted order.
-    sorted_libraries = df_sorted["library"].to_list()
-    sorted_data = []
-    for lib in sorted_libraries:
-        lib_times = [df.filter(pl.col("library") == lib)[str(cond)].item() for cond in conditions]
-        sorted_data.append(lib_times)
-    sorted_data = np.array(sorted_data)  # shape: (num_libraries, num_conditions)
+    print("Sorted benchmark means (in seconds):")
+    print(df)
 
-    # Plot a grouped bar chart using the sorted order.
+    # Plot a grouped bar chart with error bars.
     num_libs = len(sorted_libraries)
     num_conds = len(conditions)
     bar_width = 0.2
@@ -197,16 +218,17 @@ if __name__ == "__main__":
 
     fig, ax = plt.subplots(figsize=(10, 6))
     for i, cond in enumerate(conditions):
-        ax.bar(x + i * bar_width, sorted_data[:, i], width=bar_width, label=f"{cond} request(s)")
+        ax.bar(x + i * bar_width, means_arr[:, i], width=bar_width,
+               yerr=errs_arr[:, i], capsize=5, label=f"{cond} request(s)")
 
     ax.set_xlabel("Library")
     ax.set_ylabel("Average Download Time (seconds)")
-    ax.set_title("Benchmark Leaderboards for 1, 10, and 100 Requests\n(Fastest Package on the Left)")
+    ax.set_title("Benchmark Leaderboards for 1, 10, and 100 Requests\n(Fastest on the Left)")
     ax.set_xticks(x + bar_width * (num_conds - 1) / 2)
     ax.set_xticklabels(sorted_libraries)
     ax.legend()
     plt.tight_layout()
     
-    # Save the figure to the working directory.
+    # Save the figure to a file.
     plt.savefig("benchmark_leaderboards.png")
     print("Graph saved as 'benchmark_leaderboards.png'")

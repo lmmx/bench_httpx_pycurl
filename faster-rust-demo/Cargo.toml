@@ -1,0 +1,13 @@
+[package]
+name = "fastr"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "fastr"
+crate-type = ["cdylib"]
+
+[dependencies]
+reqwest = "0.11"
+tokio = { version = "1.28", features = ["rt-multi-thread", "macros"] }
+pyo3 = { version = "0.18.0", features = ["extension-module"] }
