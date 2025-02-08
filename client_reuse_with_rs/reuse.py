@@ -20,8 +20,8 @@ CONDITIONS = [1, 10, 100]
 # Adaptive sampling parameters
 TOLERANCE = 0.01  # How precise we want each library’s mean estimate
 CONFIDENCE = 0.95  # Confidence level for confidence intervals
-MIN_REPEATS = 2  # 30  # Minimum repeats before we check if we can stop
-MAX_REPEATS = 2  # 50  # Maximum repeats to avoid infinite loops
+MIN_REPEATS = 30  # Minimum repeats before we check if we can stop
+MAX_REPEATS = 50  # Maximum repeats to avoid infinite loops
 
 # Our set of URLs (each run will fetch them all)
 URLS = [
