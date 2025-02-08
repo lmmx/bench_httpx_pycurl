@@ -267,6 +267,24 @@ if __name__ == "__main__":
     avg_duration = sum(durations) / len(durations)
     print(f"hyperfastparallel average download time: {{avg_duration:.4f}} seconds")
 """,
+        "fastrparallel": f"""
+import time
+import fastrparallel
+
+URLS = {urls_py}
+
+def download():
+    start_time = time.time()
+    fastrparallel.download_all(URLS)
+    return time.time() - start_time
+
+if __name__ == "__main__":
+    durations = []
+    for _ in range({num_runs}):
+        durations.append(download())
+    avg_duration = sum(durations) / len(durations)
+    print(f"fastrparallel average download time: {{avg_duration:.4f}} seconds")
+""",
     }
 
 

@@ -1,0 +1,11 @@
+[build-system]
+requires = ["maturin>=1,<2"]
+build-backend = "maturin"
+
+[project]
+name = "fastrparallel"
+version = "0.1.0"
+description = "Minimal Rust-based HTTP GET for Python"
+authors = [
+    {name = "Louis Maddox"},
+]
