@@ -18,7 +18,7 @@ fn get(url: &str) -> PyResult<String> {
 /// This is the module initialiser. The name here (`fastr`) must match the
 /// library name you declared in Cargo.toml (lib.name).
 #[pymodule]
-fn fastr(_py: Python, m: &PyModule) -> PyResult<()> {
+fn fastr5(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get, m)?)?;
     Ok(())
 }

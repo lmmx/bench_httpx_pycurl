@@ -278,11 +278,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "hyperfast3"
+name = "hyperfast5"
 version = "0.1.0"
 dependencies = [
  "hyper",
  "hyper-tls",
+ "once_cell",
  "pyo3",
  "tokio",
 ]

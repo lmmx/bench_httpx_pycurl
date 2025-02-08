@@ -3,7 +3,7 @@ requires = ["maturin>=1,<2"]
 build-backend = "maturin"
 
 [project]
-name = "hyperfast3"
+name = "hyperfastparallel"
 version = "0.1.0"
 description = "Minimal Rust-based HTTP GET for Python"
 authors = [

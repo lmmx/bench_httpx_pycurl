@@ -19,8 +19,8 @@ CONDITIONS = [1, 10, 100]
 # Adaptive sampling parameters
 TOLERANCE = 0.01  # How precise we want each library’s mean estimate
 CONFIDENCE = 0.95  # Confidence level for confidence intervals
-MIN_REPEATS = 30  # Minimum repeats before we check if we can stop
-MAX_REPEATS = 50  # Maximum repeats to avoid infinite loops
+MIN_REPEATS = 1  # 30  # Minimum repeats before we check if we can stop
+MAX_REPEATS = 1  # 50  # Maximum repeats to avoid infinite loops
 
 URL = "https://docs.pola.rs/py-polars/html/objects.inv"
 
@@ -215,41 +215,41 @@ if __name__ == "__main__":
     avg_duration = sum(durations) / len(durations)
     print(f"httpcore average download time: {{avg_duration:.4f}} seconds")
 """,
-        # New Rust-based extension called "fastr5":
-        "fastr5": f"""
+        # New Rust-based extension called "fastr6":
+        "fastr6": f"""
 import time
-import fastr5
+import fastr6
 
 url = "{URL}"
 
 def download():
     start_time = time.time()
     # Single GET using the Rust extension, no client reuse.
-    fastr5.get(url)
+    fastr6.get(url)
     return time.time() - start_time
 
 if __name__ == "__main__":
     durations = [download() for _ in range({num_runs})]
     avg_duration = sum(durations) / len(durations)
-    print(f"fastr5 average download time: {{avg_duration:.4f}} seconds")
+    print(f"fastr6 average download time: {{avg_duration:.4f}} seconds")
 """,
-        # New Rust-based extension called "hyperfast3":
-        "hyperfast3": f"""
+        # New Rust-based extension called "hyperfast5":
+        "hyperfast5": f"""
 import time
-import hyperfast3
+import hyperfast5
 
 url = "{URL}"
 
 def download():
     start_time = time.time()
     # Single GET using the Rust extension, no client reuse.
-    hyperfast3.get(url)
+    hyperfast5.get(url)
     return time.time() - start_time
 
 if __name__ == "__main__":
     durations = [download() for _ in range({num_runs})]
     avg_duration = sum(durations) / len(durations)
-    print(f"hyperfast3 average download time: {{avg_duration:.4f}} seconds")
+    print(f"hyperfast5 average download time: {{avg_duration:.4f}} seconds")
 """,
     }
 

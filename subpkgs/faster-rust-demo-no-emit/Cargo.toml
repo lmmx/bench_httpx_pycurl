@@ -1,14 +1,13 @@
 [package]
-name = "hyperfast3"
+name = "fastr6"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-name = "hyperfast3"
+name = "fastr6"
 crate-type = ["cdylib"]
 
 [dependencies]
-hyper = { version = "0.14", features = ["full"] }
-hyper-tls = "0.5"
+reqwest = "0.11"
 tokio = { version = "1.28", features = ["rt-multi-thread", "macros"] }
 pyo3 = { version = "0.18.0", features = ["extension-module"] }

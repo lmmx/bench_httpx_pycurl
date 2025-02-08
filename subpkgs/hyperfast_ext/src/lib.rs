@@ -36,7 +36,7 @@ fn get(py: Python, url: &str) -> PyResult<Py<PyBytes>> {
 }
 
 #[pymodule]
-fn hyperfast2(_py: Python, m: &PyModule) -> PyResult<()> {
+fn hyperfast3(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get, m)?)?;
     Ok(())
 }
